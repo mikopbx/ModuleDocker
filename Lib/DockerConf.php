@@ -44,6 +44,10 @@ class DockerConf extends ConfigClass
      */
     public function onAfterModuleEnable(): void
     {
+        $pid = Processes::getPidOfProcess('safe_dockerd');
+        if(!empty($pid)){
+            return;
+        }
         $binDir = $this->getBinDir();
         // Монтируем файловые системы.
         Processes::mwExec($binDir . '/cgroupfs-mount');
