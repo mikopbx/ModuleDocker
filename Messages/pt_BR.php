@@ -1,5 +1,7 @@
 <?php
 return [
+    'mod_dkr_Disconnected' => 'Módulo Docker desativado',
+    'mod_dkr_Connected' => 'Módulo Docker conectado',
     'SubHeaderModuleDocker' => 'Suporte a contêiner Docker, para módulos de terceiros',
     'BreadcrumbModuleDocker' => 'Módulo Docker',
     'mo_ModuleModuleDocker' => 'Módulo Docker',
@@ -11,6 +13,4 @@ return [
  *
  */
     'repModuleDocker' => 'Módulo Docker -% repesent%',
-    'mod_dkr_Disconnected' => 'Módulo Docker desativado',
-    'mod_dkr_Connected' => 'Módulo Docker conectado',
 ];
