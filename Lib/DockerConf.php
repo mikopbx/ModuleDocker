@@ -23,7 +23,7 @@ class DockerConf extends ConfigClass
      *
      * @param array $request
      *
-     * @return PBXApiResult
+     * @return PBXApiResult An object containing the result of the API call.
      */
     public function moduleRestAPICallback(array $request): PBXApiResult
     {
@@ -98,9 +98,9 @@ class DockerConf extends ConfigClass
     /**
      * Добавление задач в crond.
      *
-     * @param $tasks
+     * @param array $tasks
      */
-    public function createCronTasks(&$tasks): void
+    public function createCronTasks(array &$tasks): void
     {
         if ( ! is_array($tasks)) {
             return;

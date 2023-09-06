@@ -1,6 +1,6 @@
 #!/bin/sh
+MODDIR="$( dirname "$(dirname "$0")")";
 
-MODDIR='/storage/usbdisk1/mikopbx/custom_modules/ModuleDocker';
 export PATH=$PATH:$MODDIR/bin;
 mkdir -p $MODDIR/db/lib_docker;
 if [ ! -f /var/lib/docker ]; then
@@ -20,24 +20,22 @@ CLIARGS="$*"
 message() {
 	echo "$1" >&2
 	logger -t "$(basename $PATHTOBIN)" "$1"
-
 }
 
 run_bin()
 {
 	while :; do
-
-	    nice -n $PRIORITY ${PATHTOBIN} ${CLIARGS} 2> /dev/null
+	  nice -n $PRIORITY ${PATHTOBIN} ${CLIARGS} 2> /dev/null
 		EXITSTATUS=$?
 
-		message "worker_models_events ended with exit status $EXITSTATUS"
+		message "worker $PATHTOBIN ended with exit status $EXITSTATUS"
 		if test "x$EXITSTATUS" = "x0" ; then
-			message "Bin worker_models_events shutdown normally."
+			message "Bin $PATHTOBIN shutdown normally."
 			sleep 30
 		else
-			message "worker_models_events died with code $EXITSTATUS."
+			message "$PATHTOBIN died with code $EXITSTATUS."
 		fi
-		message "Automatically restarting worker_models_events."
+		message "Automatically restarting $PATHTOBIN"
 		sleep $SLEEPSECS
 
 	done
