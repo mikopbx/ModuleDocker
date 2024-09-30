@@ -6,10 +6,8 @@
  * Written by Alexey Portnov, 5 2019
  */
 
-namespace Modules\ModuleDocker\setup;
+namespace Modules\ModuleDocker\Setup;
 
-use MikoPBX\Core\System\Util;
-use Models\PbxSettings;
 use MikoPBX\Modules\Setup\PbxExtensionSetupBase;
 
 class PbxExtensionSetup extends PbxExtensionSetupBase
