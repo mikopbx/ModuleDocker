@@ -8,7 +8,6 @@
 namespace Modules\ModuleDocker\App\Controllers;
 use MikoPBX\AdminCabinet\Controllers\BaseController;
 use MikoPBX\Modules\PbxExtensionUtils;
-use Modules\ModuleDocker\App\Forms\ModuleDockerForm;
 use Modules\ModuleDocker\Models\ModuleDocker;
 
 class ModuleDockerController extends BaseController
@@ -19,8 +18,8 @@ class ModuleDockerController extends BaseController
 
     public function initialize(): void
     {
-        $this->moduleDir           = PbxExtensionUtils::getModuleDir($this->moduleUniqueID);
-        $this->view->logoImagePath = "{$this->url->get()}assets/img/cache/{$this->moduleUniqueID}/logo.svg";
+        $this->moduleDir = PbxExtensionUtils::getModuleDir($this->moduleUniqueID);
+        $this->view->logoImagePath = "{$this->url->get()}assets/img/cache/$this->moduleUniqueID/logo.svg";
         $this->view->submitMode    = null;
         parent::initialize();
 
@@ -33,18 +32,11 @@ class ModuleDockerController extends BaseController
     {
         $footerCollection = $this->assets->collection('footerJS');
         $footerCollection->addJs('js/pbx/main/form.js', true);
-        $footerCollection->addJs("js/cache/{$this->moduleUniqueID}/module-docker-index.js", true);
+        $footerCollection->addJs("js/cache/$this->moduleUniqueID/module-docker-index.js", true);
         $headerCollectionCSS = $this->assets->collection('headerCSS');
-        $headerCollectionCSS->addJs("css/cache/{$this->moduleUniqueID}/module-docker.css", true);
+        $headerCollectionCSS->addJs("css/cache/$this->moduleUniqueID/module-docker.css", true);
 
-        $settings = ModuleDocker::findFirst();
-        if ($settings === null) {
-            $settings = new ModuleDocker();
-        }
-        // Для примера добавим на форму меню провайдеров
-
-        $this->view->form = new ModuleDockerForm($settings);
-        $this->view->pick("{$this->moduleDir}/App/Views/index");
+        $this->view->pick("$this->moduleDir/App/Views/index");
     }
 
     /**

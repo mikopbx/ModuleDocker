@@ -70,10 +70,10 @@ class DockerConf extends ConfigClass
         $killallPath = Util::which('killall');
         $dockerPath  = $binDir.DIRECTORY_SEPARATOR.'docker';
 
-        Processes::mwExec("{$killallPath} safe_dockerd");
-        Processes::mwExec("{$dockerPath} stop $({$dockerPath} ps -q)");
+        Processes::mwExec("$killallPath safe_dockerd");
+        Processes::mwExec("$dockerPath stop $({$dockerPath} ps -q)");
         // docker stop $(docker ps -q); docker rm $(docker ps -a -q) // удаление всех контейнеров.
-        Processes::mwExec("{$killallPath} dockerd");
+        Processes::mwExec("$killallPath dockerd");
     }
 
     /**

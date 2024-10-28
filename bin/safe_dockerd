@@ -1,33 +1,41 @@
 #!/bin/sh
 MODDIR="$( dirname "$(dirname "$0")")";
-
-export PATH=$PATH:$MODDIR/bin;
-mkdir -p $MODDIR/db/lib_docker;
-if [ ! -f /var/lib/docker ]; then
-    ln -s $MODDIR/db/lib_docker /var/lib/docker;
-fi
-
+SRC_DOCKER_DOR=/var/lib/docker;
+DST_DOCKER_DOR=/storage/usbdisk1/mikopbx/docker;
 # Приоритет запуска процесса.
 PRIORITY=0
 # Путь и базовые параметры для запускаемого приложения.
 PATHTOBIN='dockerd';
 # Длительно ожидание перед новым запуском.
 SLEEPSECS=4
-
 # Транслируем переменные из командной строки.
 CLIARGS="$*"
+
+export PATH=$PATH:$MODDIR/bin;
 
 message() {
 	echo "$1" >&2
 	logger -t "$(basename $PATHTOBIN)" "$1"
 }
 
+if /bin/busybox grep -q "PATH:$MODDIR/bin;" /etc/profile; then
+  echo ;
+else
+  message "Bin $PATHTOBIN add docker bin to PATH in /etc/profile"
+  echo >> /etc/profile
+  echo "PATH=\$PATH:$MODDIR/bin;" >> /etc/profile
+fi
+
+mkdir -p "${DST_DOCKER_DOR}";
+if [ ! -f "${SRC_DOCKER_DOR}" ]; then
+    ln -s "${DST_DOCKER_DOR}" "${SRC_DOCKER_DOR}";
+fi
+
 run_bin()
 {
 	while :; do
 	  nice -n $PRIORITY ${PATHTOBIN} ${CLIARGS} 2> /dev/null
 		EXITSTATUS=$?
-
 		message "worker $PATHTOBIN ended with exit status $EXITSTATUS"
 		if test "x$EXITSTATUS" = "x0" ; then
 			message "Bin $PATHTOBIN shutdown normally."
@@ -37,7 +45,6 @@ run_bin()
 		fi
 		message "Automatically restarting $PATHTOBIN"
 		sleep $SLEEPSECS
-
 	done
 }
 
