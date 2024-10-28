@@ -15,6 +15,16 @@ const ModuleDocker = {
 	$disabilityFields: $('#module-docker-form  .disability'),
 	$statusToggle: $('#module-status-toggle'),
 	$moduleStatus: $('#status'),
+	/**
+	 * jQuery object for the log content.
+	 * @type {jQuery}
+	 */
+	$logContent: $('#log-content-readonly'),
+	/**
+	 * The viewer for displaying the log content.
+	 * @type {Ace}
+	 */
+	viewer: '',
 	validateRules: {
 		textField: {
 			identifier: 'text_field',
@@ -51,6 +61,44 @@ const ModuleDocker = {
 		ModuleDocker.checkStatusToggle();
 		window.addEventListener('ModuleStatusChanged', ModuleDocker.checkStatusToggle);
 		ModuleDocker.initializeForm();
+		// ModuleDocker.initializeAce();
+		// ModuleDocker.adjustLogHeight();
+	},
+	/**
+	 * Function to adjust the height of the logs depending on the screen mode.
+	 */
+	adjustLogHeight() {
+		setTimeout(() => {
+			// let aceHeight = window.innerHeight - ModuleDocker.$logContent.offset().top - 25 - 222;
+			let aceHeight = window.innerHeight - $('#output').offset().top - 100;
+			// Recalculate the size of the ACE editor
+			$('.log-content-readonly').css('min-height',  `${aceHeight}px`);
+			ModuleDocker.viewer.resize();
+		}, 300);
+	},
+	/**
+	 * Initializes the ACE editor for log viewing.
+	 */
+	initializeAce() {
+		ModuleDocker.viewer = ace.edit('log-content-readonly');
+
+		// Check if the Julia mode is available
+		const julia = ace.require('ace/mode/julia');
+		if (julia !== undefined) {
+			// Set the mode to Julia if available
+			const IniMode = julia.Mode;
+			ModuleDocker.viewer.session.setMode(new IniMode());
+		}
+
+		// Set the theme and options for the ACE editor
+		ModuleDocker.viewer.setTheme('ace/theme/monokai');
+		ModuleDocker.viewer.renderer.setShowGutter(false);
+		ModuleDocker.viewer.setOptions({
+			showLineNumbers: false,
+			showPrintMargin: false,
+			readOnly: true,
+		});
+
 	},
 	/**
 	 * Изменение статуса кнопок при изменении статуса модуля

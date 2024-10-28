@@ -32,7 +32,11 @@ class ModuleDockerController extends BaseController
     {
         $footerCollection = $this->assets->collection('footerJS');
         $footerCollection->addJs('js/pbx/main/form.js', true);
+        $footerCollection->addJs('js/vendor/ace/ace.js', true);
+
         $footerCollection->addJs("js/cache/$this->moduleUniqueID/module-docker-index.js", true);
+        $footerCollection->addJs("js/cache/$this->moduleUniqueID/index.js", true, true, ['type'=>'module']);
+
         $headerCollectionCSS = $this->assets->collection('headerCSS');
         $headerCollectionCSS->addJs("css/cache/$this->moduleUniqueID/module-docker.css", true);
 

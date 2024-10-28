@@ -66,14 +66,13 @@ class DockerConf extends ConfigClass
      */
     public function onAfterModuleDisable(): void
     {
-        $binDir      = $this->getBinDir();
         $killallPath = Util::which('killall');
-        $dockerPath  = $binDir.DIRECTORY_SEPARATOR.'docker';
-
         Processes::mwExec("$killallPath safe_dockerd");
-        Processes::mwExec("$dockerPath stop $({$dockerPath} ps -q)");
-        // docker stop $(docker ps -q); docker rm $(docker ps -a -q) // удаление всех контейнеров.
         Processes::mwExec("$killallPath dockerd");
+        // $binDir      = $this->getBinDir();
+        // $dockerPath  = $binDir.DIRECTORY_SEPARATOR.'docker';
+        // Processes::mwExec("$dockerPath stop $({$dockerPath} ps -q)");
+        // docker stop $(docker ps -q); docker rm $(docker ps -a -q) // удаление всех контейнеров.
     }
 
     /**
