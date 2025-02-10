@@ -1,15 +1,14 @@
 #!/bin/sh
 MODDIR="$( dirname "$(dirname "$0")")";
-SRC_DOCKER_DOR=/var/lib/docker;
-DST_DOCKER_DOR=/storage/usbdisk1/mikopbx/docker;
+SRC_DOCKER_DIR="/var/lib/docker"
+DST_DOCKER_DIR="/storage/usbdisk1/mikopbx/docker"
+
 # Приоритет запуска процесса.
 PRIORITY=0
 # Путь и базовые параметры для запускаемого приложения.
 PATHTOBIN='dockerd';
 # Длительно ожидание перед новым запуском.
 SLEEPSECS=4
-# Транслируем переменные из командной строки.
-CLIARGS="$*"
 
 export PATH=$PATH:$MODDIR/bin;
 
@@ -18,23 +17,62 @@ message() {
 	logger -t "$(basename $PATHTOBIN)" "$1"
 }
 
-if /bin/busybox grep -q "PATH:$MODDIR/bin;" /etc/profile; then
-  echo ;
-else
-  message "Bin $PATHTOBIN add docker bin to PATH in /etc/profile"
-  echo >> /etc/profile
-  echo "PATH=\$PATH:$MODDIR/bin;" >> /etc/profile
+# Function to check if a directory exists and create it if necessary
+check_and_create_dir() {
+    dir=$1
+    # Check if the directory does not exist
+    if [ ! -d "$dir" ]; then
+        echo "Directory $dir does not exist. Creating..."
+        mkdir -p "$dir"
+        # Check if the creation was successful
+        if [ $? -ne 0 ]; then
+            echo "Error creating directory $dir"
+            exit 1
+        fi
+    fi
+}
+# Check if SRC_DOCKER_DIR exists and is not a directory (e.g., it's a file)
+if [ -e "$SRC_DOCKER_DIR" ] && [ ! -d "$SRC_DOCKER_DIR" ]; then
+    echo "File $SRC_DOCKER_DIR exists but is not a directory. Removing..."
+    rm -f "$SRC_DOCKER_DIR"
+    # Check if the removal was successful
+    if [ $? -ne 0 ]; then
+        echo "Error removing file $SRC_DOCKER_DIR"
+        exit 1
+    fi
+    echo "Creating directory $SRC_DOCKER_DIR..."
+    mkdir -p "$SRC_DOCKER_DIR"
+    # Check if the creation was successful
+    if [ $? -ne 0 ]; then
+        echo "Error creating directory $SRC_DOCKER_DIR"
+        exit 1
+    fi
 fi
 
-mkdir -p "${DST_DOCKER_DOR}";
-if [ ! -f "${SRC_DOCKER_DOR}" ]; then
-    ln -s "${DST_DOCKER_DOR}" "${SRC_DOCKER_DOR}";
+# Check and create both source and destination directories
+check_and_create_dir "$SRC_DOCKER_DIR"
+check_and_create_dir "$DST_DOCKER_DIR"
+
+# Check if the bind mount is already set up for SRC_DOCKER_DIR
+mount | grep -q "$SRC_DOCKER_DIR"
+if [ $? -eq 0 ]; then
+    echo "Bind mount is already configured for $SRC_DOCKER_DIR. Skipping..."
+else
+    echo "Setting up bind mount for $SRC_DOCKER_DIR -> $DST_DOCKER_DIR..."
+    mount --bind "$DST_DOCKER_DIR" "$SRC_DOCKER_DIR"
+    # Check if the bind mount was successful
+    if [ $? -ne 0 ]; then
+        echo "Error setting up bind mount"
+        exit 1
+    else
+        echo "Bind mount successfully configured."
+    fi
 fi
 
 run_bin()
 {
 	while :; do
-	  nice -n $PRIORITY ${PATHTOBIN} ${CLIARGS} 2> /dev/null
+	  nice -n "$PRIORITY" "$PATHTOBIN" $* 2> /dev/null
 		EXITSTATUS=$?
 		message "worker $PATHTOBIN ended with exit status $EXITSTATUS"
 		if test "x$EXITSTATUS" = "x0" ; then
